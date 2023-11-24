@@ -21,6 +21,23 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 1rem;
+    gap: 2rem;
 
+}
+.navbar ul li a{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: .5rem;
+
+}
+@media screen and (max-width: 768px){
+.navbar .profile-nav-list p{
+    display: none;
+}
+    
 }
