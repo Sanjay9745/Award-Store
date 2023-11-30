@@ -1,26 +1,69 @@
 import Card from "../components/Card";
 import Navbar from "../components/Navbar";
 import "../assets/css/Home.css"
+import { useEffect, useState } from "react";
+import axios from 'axios';
+import SERVER_URL from "../config/SERVER_URL";
+import { useNavigate } from "react-router-dom";
+
 function Home() {
+  const navigate = useNavigate();
+  const [products,setProducts]=useState([]);
+
+  useEffect(() => {
+    if(localStorage.getItem("token")){
+      axios.get(SERVER_URL+"/user/protected",{
+        headers:{
+         "x-access-token":localStorage.getItem("token")
+        }
+      }).then((res)=>{
+        if(res.status!==200){
+          navigate("/login")
+        }
+      }).catch((err)=>{
+        console.log(err);
+        localStorage.removeItem("token");
+        navigate("/login")
+      })
+    }else{
+      navigate("/login")
+    }
+  }, [navigate])
+
+  useEffect(()=>{
+    axios.get(SERVER_URL+"/products/all").then((res)=>{
+      if(res.status===200){
+    setProducts(res.data);
+console.log(res.data);
+      }
+    }).catch((err)=>{
+      console.log(err);
+   
+    })  
+  },[])
+  const handleAddCart = (id)=>{
+   axios.post(SERVER_URL+"/user/cart",{
+     productId:id
+   }, {
+    headers:{
+     "x-access-token":localStorage.getItem("token")
+    }
+  }).then((res)=>{
+    if(res.status===200){
+      console.log(res.data);
+    }
+  }).catch((err)=>{
+    console.log(err);
+  })
+  }
   return (
     <>
       <div className="container">
         <Navbar />
         <div className="cards">
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
-          <Card />
+      {    products.map((product)=>{
+            return <Card key={product._id} product={product} handleAddCart={handleAddCart}/>
+          })}
 
         </div>
       </div>

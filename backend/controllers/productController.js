@@ -4,7 +4,7 @@ const jwtSecret = process.env.JWT_SECRET;
 
 const getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find();
+        const products = await Product.find({});
         res.status(200).json(products);
     } catch (error) {
         console.error("Error getting products:", error.message);

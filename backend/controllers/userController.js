@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Product = require("../models/Products");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const jwtSecret = process.env.JWT_SECRET;
@@ -95,7 +96,7 @@ const update = async (req, res) => {
   try {
     const { username, email, password } = req.body;
     const user = await User.findById(req.user.userId);
-//if exist then update hash the password and update
+    //if exist then update hash the password and update
     if (username) {
       user.username = username;
     }
@@ -113,81 +114,163 @@ const update = async (req, res) => {
     console.error("Error during login:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
-}
-const deleteUser = async  (req, res) => {
+};
+const deleteUser = async (req, res) => {
   try {
     const user = await User.findOneAndDelete(req.user.userId);
-   
+
     res.status(200).json(user);
   } catch (error) {
     console.error("Error during login:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
 const addCart = async (req, res) => {
   try {
-    const { productId, quantity } = req.body;
-    //add to cart
+    const { productId } = req.body;
+
+    // Check if the user is found
     const user = await User.findById(req.user.userId);
-    //validate data
-    if (!productId || !quantity) {
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Validate data
+    if (!productId) {
       return res
         .status(400)
         .json({ error: "Please provide all required fields." });
     }
-    user.cart.push({
-      productId,
-      quantity,
-    });
-    await user.save();
-    res.status(200).json(user);
+
+    // Check if the product already exists in the cart
+    const existingProduct = user.cart.find(
+      (item) => item.productId === productId
+    );
+
+    // Check if the product exists in the database
+    const product = await Product.findById(productId);
+
+    if (existingProduct) {
+      // Check available stocks before incrementing quantity
+      if (product.stocks > existingProduct.quantity) {
+        existingProduct.quantity++;
+        await user.save();
+        res.status(200).json(user);
+      } else {
+        // If the product is out of stock, send an error response
+        res.status(400).json({ error: "Product is out of stock" });
+      }
+    } else {
+      // If the product doesn't exist, add a new product to the cart
+      if (product && product.stocks > 0) {
+        user.cart.push({
+          productId,
+          quantity: 1,
+        });
+        await user.save();
+        res.status(200).json(user);
+      } else {
+        // If the product is out of stock or doesn't exist, send an error response
+        res.status(400).json({ error: "Product is out of stock" });
+      }
+    }
   } catch (error) {
-    console.error("Error during login:", error.message);
+    console.error("Error during adding to cart:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
-}
+};
+
+
+
 const getCart = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
-    res.status(200).json(user.cart);
+
+    // Check if the user is found
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const products = await Promise.all(
+      user.cart.map(async (item) => {
+        const product = await Product.findById(item.productId);
+        let stockStatus = true
+        if(product.stocks<=item.quantity){
+          stockStatus = false
+        }
+        return {
+          product: product,
+          productId: product._id,
+          quantity: item.quantity,
+          stockStatus:stockStatus,
+        };
+      })
+    );
+
+    res.status(200).json(products);
   } catch (error) {
-    console.error("Error during login:", error.message);
+    console.error("Error during getting cart:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
-}
-const updateCart = async (req, res) => {
- try {
-  const { productId, quantity,cartId } = req.body;
-  const user = await User.findById(req.user.userId);
-//if exist then update
-  if (productId) {
-    user.cart.id(cartId).productId = productId;
+};
+
+
+const reduceCart = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const user = await User.findById(req.user.userId);
+
+    // Validate data
+    if (!productId) {
+      return res
+        .status(400)
+        .json({ error: "Please provide all required fields." });
+    }
+
+    // Check if the product already exists in the cart
+    const existingProductIndex = user.cart.findIndex(
+      (item) => item.productId === productId
+    );
+
+    if (existingProductIndex !== -1) {
+      // If the product exists in the cart
+      if (user.cart[existingProductIndex].quantity > 1) {
+        // If the quantity is greater than 0, reduce it
+        user.cart[existingProductIndex].quantity--;
+      } else {
+        // If the quantity is already 0, remove the product from the cart
+        user.cart.splice(existingProductIndex, 1);
+      }
+    }
+
+    await user.save();
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error during reducing cart:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
-  if (quantity) {
-    user.cart.id(cartId).quantity = quantity;
-  }
-  await user.save();
-  res.status(200).json(user);
- } catch (error) {
-  console.error("Error during login:", error.message);
-  res.status(500).json({ error: "Internal Server Error" });
- } 
-}
+};
+
 const deleteCart = async (req, res) => {
   try {
-    const { cartId } = req.body;
+    const { productId } = req.params;
     const user = await User.findById(req.user.userId);
 
     // Filter out the item to be deleted from the user's cart
-    const updatedCart = user.cart.filter((item) => item._id !== cartId);
+    const updatedCart = user.cart.filter((item) => item.productId !== productId);
 
     // Update the user's cart with the filtered cart
     user.cart = updatedCart;
-    
+
     // Save the updated user object
     await user.save();
 
-    res.status(200).json({ message: 'Item removed from the cart successfully', updatedCart });
+    res
+      .status(200)
+      .json({
+        message: "Item removed from the cart successfully",
+        updatedCart,
+      });
   } catch (error) {
     console.error("Error during cart item deletion:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -196,27 +279,35 @@ const deleteCart = async (req, res) => {
 
 const addShipping = async (req, res) => {
   try {
-    const { address, city, postalCode, country } = req.body;
+    const { address, city, postalCode, phoneNumber, apartment, name, state } = req.body;
     const user = await User.findById(req.user.userId);
-    //validate data
-    if (!address || !city || !postalCode || !country) {
-      return res
-        .status(400)
-        .json({ error: "Please provide all required fields." });
+
+    // validate data
+    if (!address || !city || !postalCode || !phoneNumber || !apartment || !name || !state) {
+      return res.status(400).json({ error: "Please provide all required fields." });
     }
-    user.shippingAddress.push({
+
+    // Update the existing user's shippingAddress
+    user.shippingAddress = {
       address,
       city,
       postalCode,
-      country,
-    });
+      phoneNumber,
+      apartment,
+      name,
+      state,
+    };
+
+    // Save the updated user object
     await user.save();
+
     res.status(200).json(user);
   } catch (error) {
-    console.error("Error during login:", error.message);
+    console.error("Error during adding shipping address:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 const getShipping = async (req, res) => {
   try {
     // Assuming you have the user ID available in req.user.userId
@@ -226,29 +317,29 @@ const getShipping = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     // Get the shipping information from the user's profile
-    const shippingInfo = user.shippingInfo;
+    const shippingInfo = user.shippingAddress;
 
     // Check if shipping information exists
     if (!shippingInfo) {
-      return res.status(404).json({ error: 'Shipping information not found' });
+      return res.status(404).json({ error: "Shipping information not found" });
     }
 
     res.status(200).json({ shippingInfo });
   } catch (error) {
     console.error("Error getting shipping information:", error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 const updateShipping = async (req, res) => {
   try {
-    const { shippingAddressId, updatedAddress } = req.body;
+    const { address, city, postalCode, phoneNumber, apartment, name,state } = req.body;
     const userId = req.user.userId;
-
+    console.log(address, city, postalCode, phoneNumber, apartment, name,state);
     // Find the user by ID
     const user = await User.findById(userId);
 
@@ -256,28 +347,36 @@ const updateShipping = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Find the shipping address by ID
-    const existingShippingAddress = user.shippingAddress.find(
-      (address) => address._id.toString() === shippingAddressId
-    );
-
-    if (existingShippingAddress) {
-      // If the shipping address exists, update it
-      existingShippingAddress.address = updatedAddress.address || existingShippingAddress.address;
-      existingShippingAddress.city = updatedAddress.city || existingShippingAddress.city;
-      existingShippingAddress.postalCode = updatedAddress.postalCode || existingShippingAddress.postalCode;
-      existingShippingAddress.country = updatedAddress.country || existingShippingAddress.country;
-
-      // Save the updated user object
-      await user.save();
-
-      return res.status(200).json({
-        message: "Shipping address updated successfully",
-        updatedShippingAddress: existingShippingAddress,
-      });
+    // Check if there's a shipping address for the user
+    if (user.shippingAddress) {
+      // Update the fields if they exist in the request body
+      if (address) user.shippingAddress.address = address || "";
+      if (city) user.shippingAddress.city = city || "";
+      if (postalCode) user.shippingAddress.postalCode = postalCode || "";
+      if (phoneNumber) user.shippingAddress.phoneNumber = phoneNumber || "" ;
+      if (apartment) user.shippingAddress.apartment = apartment || "" ;
+      if (name) user.shippingAddress.name = name || "";
+      if (state) user.shippingAddress.state = state || "";
+    } else {
+      // If there's no shipping address, create a new one
+      user.shippingAddress = {
+        address,
+        city,
+        postalCode,
+        phoneNumber,
+        apartment,
+        name,
+        state
+      };
     }
 
-    res.status(404).json({ error: "Shipping address not found" });
+    // Save the updated user object
+    await user.save();
+
+    return res.status(200).json({
+      message: "Shipping address updated successfully",
+      updatedShippingAddress: user.shippingAddress,
+    });
   } catch (error) {
     console.error("Error updating shipping address:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -318,7 +417,6 @@ const deleteShipping = async (req, res) => {
   }
 };
 
-
 // Create order
 const addOrder = async (req, res) => {
   try {
@@ -330,7 +428,9 @@ const addOrder = async (req, res) => {
 
     // Validate data
     if (!productId || !quantity || !shippingAddressId) {
-      return res.status(400).json({ error: "Please provide all required fields." });
+      return res
+        .status(400)
+        .json({ error: "Please provide all required fields." });
     }
 
     // Add a new order to the orders array
@@ -393,7 +493,9 @@ const updateOrder = async (req, res) => {
     // Save the updated user object
     await user.save();
 
-    res.status(200).json({ message: "Order updated successfully", updatedOrder: order });
+    res
+      .status(200)
+      .json({ message: "Order updated successfully", updatedOrder: order });
   } catch (error) {
     console.error("Error updating order:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
@@ -414,7 +516,9 @@ const deleteOrder = async (req, res) => {
     }
 
     // Filter out the order to be deleted from the user's orders array
-    const updatedOrders = user.orders.filter((o) => o._id.toString() !== orderId);
+    const updatedOrders = user.orders.filter(
+      (o) => o._id.toString() !== orderId
+    );
 
     // Update the user's orders with the filtered orders
     user.orders = updatedOrders;
@@ -422,13 +526,14 @@ const deleteOrder = async (req, res) => {
     // Save the updated user object
     await user.save();
 
-    res.status(200).json({ message: "Order deleted successfully", updatedOrders });
+    res
+      .status(200)
+      .json({ message: "Order deleted successfully", updatedOrders });
   } catch (error) {
     console.error("Error during order deletion:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 module.exports = {
   register,
@@ -439,7 +544,7 @@ module.exports = {
   deleteUser,
   addCart,
   getCart,
-  updateCart,
+  reduceCart,
   deleteCart,
   addShipping,
   getShipping,

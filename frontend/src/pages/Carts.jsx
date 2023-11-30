@@ -1,75 +1,116 @@
 import "../assets/css/Carts.css";
+import CartItem from "../components/CartItem";
 import Navbar from "../components/Navbar";
+import axios from 'axios';
+import SERVER_URL from "../config/SERVER_URL";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 function Carts() {
+  const navigate = useNavigate();
+  const [products,setProducts]=useState([]);
+  const [stateChange,setStateChange]=useState(false);
+  useEffect(() => {
+    if(localStorage.getItem("token")){
+      axios.get(SERVER_URL+"/user/protected",{
+        headers:{
+         "x-access-token":localStorage.getItem("token")
+        }
+      }).then((res)=>{
+        if(res.status!==200){
+          navigate("/login")
+        }
+      }).catch((err)=>{
+        console.log(err);
+        navigate("/login")
+      })
+    }else{
+      navigate("/login")
+    }
+  }, [navigate])
+  useEffect(()=>{
+    axios.get(SERVER_URL+"/user/cart",{
+      headers:{
+       "x-access-token":localStorage.getItem("token")
+      }
+    
+    }).then((res)=>{
+      if(res.status===200){
+    setProducts(res.data);
+      }
+    }).catch((err)=>{
+      console.log(err);
+   
+    })  
+  },[stateChange])
+  const handleAddCart = (id)=>{
+   axios.post(SERVER_URL+"/user/cart",{
+     productId:id
+   }, {
+    headers:{
+     "x-access-token":localStorage.getItem("token")
+    }
+  }).then((res)=>{
+    if(res.status===200){
+      console.log(res.data);
+      setStateChange(!stateChange);
+    }
+  }).catch((err)=>{
+    console.log(err);
+  })
+  }
+  const handleReduceCart = (id)=>{
+   axios.post(SERVER_URL+"/user/reduceCart",{
+     productId:id
+   }, {
+    headers:{
+     "x-access-token":localStorage.getItem("token")
+    }
+  }).then((res)=>{
+    if(res.status===200){
+      console.log(res.data);
+      setStateChange(!stateChange);
+    }
+  }).catch((err)=>{
+    console.log(err);
+  })
+  }
+  const handleDeleteCartItem = (id)=>{
+   axios.delete(SERVER_URL+"/user/deleteCart/"+id, { 
+    headers:{
+     "x-access-token":localStorage.getItem("token")
+    }
+  }).then((res)=>{
+    if(res.status===200){
+      console.log(res.data);
+      setStateChange(!stateChange);
+    }
+  }).catch((err)=>{
+    console.log(err);
+  })
+  }
+  const totalAmount = products.reduce((acc,product)=>{
+    return acc+product.product.price*product.quantity;
+  },0)
   return (
     <>
       <div className="container">
         <Navbar />
         <div className="cart-container">
-          <ul className="responsive-table">
-            <li className="table-header">
-              <div className="col col-1">Job Id</div>
-              <div className="col col-2">Customer Name</div>
-              <div className="col col-3">Amount Due</div>
-              <div className="col col-4">Payment Status</div>
-            </li>
-            <li className="table-row">
-              <div className="col col-1" data-label="Job Id">
-                42235
-              </div>
-              <div className="col col-2" data-label="Customer Name">
-                John Doe
-              </div>
-              <div className="col col-3" data-label="Amount">
-                $350
-              </div>
-              <div className="col col-4" data-label="Payment Status">
-                Pending
-              </div>
-            </li>
-            <li className="table-row">
-              <div className="col col-1" data-label="Job Id">
-                42442
-              </div>
-              <div className="col col-2" data-label="Customer Name">
-                Jennifer Smith
-              </div>
-              <div className="col col-3" data-label="Amount">
-                $220
-              </div>
-              <div className="col col-4" data-label="Payment Status">
-                Pending
-              </div>
-            </li>
-            <li className="table-row">
-              <div className="col col-1" data-label="Job Id">
-                42257
-              </div>
-              <div className="col col-2" data-label="Customer Name">
-                John Smith
-              </div>
-              <div className="col col-3" data-label="Amount">
-                $341
-              </div>
-              <div className="col col-4" data-label="Payment Status">
-                Pending
-              </div>
-            </li>
-            <li className="table-row">
-              <div className="col col-1" data-label="Job Id">
-                42311
-              </div>
-              <div className="col col-2" data-label="Customer Name">
-                John Carpenter
-              </div>
-              <div className="col col-3" data-label="Amount">
-                $115
-              </div>
-              <div className="col col-4" data-label="Payment Status">
-                Pending
-              </div>
-            </li>
-          </ul>
+          
+          <div className="cart-top-container">
+            <p>
+              Total Amount <span>{totalAmount}</span>
+            </p>
+            <button onClick={()=>navigate("/shipping-address")}>Proceed to Pay</button>
+          </div>
+          <div className="cart-card-container">
+        {
+          products.map((product)=>(
+            <CartItem key={product._id} product={product} handleAddCart={handleAddCart} handleReduceCart={handleReduceCart} handleDeleteCartItem={handleDeleteCartItem}/>
+          ))
+        }
+          </div>
         </div>
       </div>
     </>

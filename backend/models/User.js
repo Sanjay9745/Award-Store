@@ -27,14 +27,17 @@ const userSchema = new mongoose.Schema({
     {
       productId:String,
       quantity:Number,
-      shippingAddressId:String,
+      shippingAddress:Object,
     }],
-    shippingAddress:[{
-      address:String,
-      city:String,
-      postalCode:String,
-      country:String,
-    }],
+    shippingAddress: {
+      address: String,
+      city: String,
+      postalCode: String,
+      phoneNumber: String,
+      apartment: String,
+      name: String,
+      state: String,
+    },
   createdAt: {
     type: Date,
     default: Date.now,
