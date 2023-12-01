@@ -10,6 +10,7 @@ import SingleProduct from "./pages/SingleProduct";
 import ShippingAddress from "./pages/ShippingAddress";
 import Payment from "./pages/Payment";
 import EditPassword from "./pages/EditPassword";
+import Otp from "./pages/Otp";
 function App() {
   return (
     <>
@@ -24,6 +25,7 @@ function App() {
         <Route path="/shipping-address" element={<ShippingAddress/>} />
         <Route path="/payment" element={<Payment/>} />
         <Route path="/edit-password" element={<EditPassword/>} />
+        <Route path="/otp" element={<Otp/>} />
         <Route path="*" element={<Home />} />
 
       </Routes>
