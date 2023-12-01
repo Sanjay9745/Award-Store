@@ -95,7 +95,7 @@ function Carts() {
   return (
     <>
       <div className="container">
-        <Navbar />
+        <Navbar active={"cart"}/>
         <div className="cart-container">
           
           <div className="cart-top-container">

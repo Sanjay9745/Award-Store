@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import SingleProduct from "./pages/SingleProduct";
 import ShippingAddress from "./pages/ShippingAddress";
 import Payment from "./pages/Payment";
+import EditPassword from "./pages/EditPassword";
 function App() {
   return (
     <>
@@ -22,7 +23,9 @@ function App() {
         <Route path="/product/:id" element={<SingleProduct/>} />
         <Route path="/shipping-address" element={<ShippingAddress/>} />
         <Route path="/payment" element={<Payment/>} />
+        <Route path="/edit-password" element={<EditPassword/>} />
         <Route path="*" element={<Home />} />
+
       </Routes>
     </>
   );

@@ -58,8 +58,8 @@ console.log(res.data);
   }
   return (
     <>
-      <div className="container">
-        <Navbar />
+      <div className="container home">
+        <Navbar active="home"/>
         <div className="cards">
       {    products.map((product)=>{
             return <Card key={product._id} product={product} handleAddCart={handleAddCart}/>

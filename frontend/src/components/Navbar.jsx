@@ -1,28 +1,28 @@
 import { Link } from "react-router-dom"
 import "../assets/css/Navbar.css"
-function Navbar() {
+function Navbar({active}) {
   return (
     <>
       <div className="navbar">
         <ul>
             <li>
-                <Link to="/"><i className="fa-solid fa-house"></i>
+                <Link to="/" className={active === "home" ? "active": "" } ><i className="fa-solid fa-house" ></i>
                 <p>Home</p>
                 </Link>
             </li>
             <li>
-                <Link to="/cart">
+                <Link to="/cart" className={active === "cart" ? "active": "" }>
                 <i className="fa-solid fa-shopping-cart"></i>
                 <p>Cart</p>
                 </Link>
             </li>
             <li>
-                <Link to="/orders"><i className="fa-solid fa-truck-fast"></i>
+                <Link to="/orders" className={active === "orders" ? "active": "" }><i className="fa-solid fa-truck-fast"></i>
                 <p>Orders</p>
                 </Link>
             </li>
             <li className="profile-nav-list">
-                <Link to="/profile">
+                <Link to="/profile" className={active === "profile" ? "active": "" }>
                 <i className="fa-solid fa-user"></i>
                 <p>Profile</p>
                 </Link>

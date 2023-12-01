@@ -5,7 +5,7 @@ function Orders() {
   return (
     <>
       <div className="container">
-        <Navbar/>
+        <Navbar active={"orders"}/>
         <div className="order-container">
             <div className="order-cards-container">
                 <OrderItem/>

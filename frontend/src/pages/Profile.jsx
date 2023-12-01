@@ -49,7 +49,7 @@ function Profile() {
   return (
     <>
   <div className="container">
-    <Navbar/>
+    <Navbar active={"profile"}/>
     <div className="profile-container">
       <div className="profile-card">
       
