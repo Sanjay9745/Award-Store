@@ -36,6 +36,9 @@ function Carts() {
     
     }).then((res)=>{
       if(res.status===200){
+        if(res.data.length===0){
+          navigate("/");
+        }
     setProducts(res.data);
       }
     }).catch((err)=>{

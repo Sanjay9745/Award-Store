@@ -36,6 +36,9 @@ function Orders() {
       }
     }).then((res)=>{
       if(res.status===200){
+        if(res.data.length===0){
+          navigate("/");
+        }
     setOrders(res.data);
 console.log(res.data);
       }
