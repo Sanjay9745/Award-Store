@@ -29,6 +29,29 @@ function Home() {
       navigate("/login")
     }
   }, [navigate])
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      axios.get(SERVER_URL + "/user/details", {
+        headers: {
+          "x-access-token": localStorage.getItem("token")
+        }
+      }).then((res) => {
+        if (res.status === 200) {
+          const user = res.data;
+          if (!user.verified) {
+         navigate("/otp");
+          }else{
+            navigate("/")
+          }
+        }
+      }).catch((err) => {
+        console.log(err);
+      });
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
+  
 
   useEffect(()=>{
     axios.get(SERVER_URL+"/products/all").then((res)=>{
