@@ -75,5 +75,9 @@
       margin-top: 80px;
       width: 60%;
     }
-    
+    .p-otp {
+      margin-top: 15px;
+      font-size: 0.7rem;
+      color: #333;
+    }
   }
