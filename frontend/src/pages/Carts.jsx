@@ -45,7 +45,7 @@ function Carts() {
       console.log(err);
    
     })  
-  },[stateChange])
+  },[navigate, stateChange])
   const handleAddCart = (id)=>{
    axios.post(SERVER_URL+"/user/cart",{
      productId:id
