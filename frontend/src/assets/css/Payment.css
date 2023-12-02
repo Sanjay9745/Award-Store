@@ -76,6 +76,10 @@
     padding: 2%;
     
 }
+.order-body-top-content{
+    display: flex;
+    flex-direction: column;
+}
 
 .order-body-bottom-img{
     width: 20%;

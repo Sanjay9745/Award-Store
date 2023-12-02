@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Navbar from '../components/Navbar'
 import "../assets/css/EditPassword.css"
 import axios from 'axios'
@@ -39,15 +39,16 @@ function EditPassword() {
             console.log("Passwords do not match");
             return
         }
-        axios.post(SERVER_URL+"/user/edit-password",{
+        axios.put(SERVER_URL+"/user/edit-password",{
             password:password,
-            confirmPassword:confirmPassword
         }, {
          headers:{
           "x-access-token":localStorage.getItem("token")
          }
         }).then((res)=>{
           if(res.status===200){
+            setPassword("");
+            setConfirmPassword("");
             console.log(res.data);
           }
         }).catch((err)=>{
@@ -65,7 +66,7 @@ function EditPassword() {
                 <div className="edit-content">
                     <img src="https://cdn-icons-png.flaticon.com/128/3064/3064155.png" alt="" />
                     <h1>Reset Password</h1>
-                <div className="form">
+                <div className="edit-form">
                     <input type="password" id="password" placeholder="New Password" onChange={(e)=>setPassword(e.target.value)}/>
                     <input type="password" id="confirm-password" placeholder="Confirm Password" onChange={(e)=>setConfirmPassword(e.target.value)}/>
                     <button className="button-9" role="button" onClick={handleEditPassword}>Reset Password </button>

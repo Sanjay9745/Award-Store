@@ -1,5 +1,5 @@
 
-:where(.otp-container, form, .input-field, header) {
+:where(.otp-container,.otp-form, .input-field, header) {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -33,7 +33,7 @@
     color: #333;
     font-weight: 500;
   }
-  form .input-field {
+  .otp-form .input-field {
     flex-direction: row;
     column-gap: 10px;
   }
@@ -53,7 +53,7 @@
   .input-field input::-webkit-outer-spin-button {
     display: none;
   }
-  form button {
+ .otp-form button {
     margin-top: 25px;
     width: 100%;
     color: #fff;
@@ -62,15 +62,11 @@
     padding: 9px 0;
     cursor: pointer;
     border-radius: 6px;
-    pointer-events: none;
     background: #000000;
     transition: all 0.2s ease;
   }
-  form button.active {
-    background: #000000;
-    pointer-events: auto;
-  }
-  form button:hover {
+
+  .otp-form button:hover {
     background: rgb(31, 32, 34);
   }
 
