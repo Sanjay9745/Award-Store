@@ -25,9 +25,11 @@ const userSchema = new mongoose.Schema({
   ],
   orders:[
     {
-      productId:String,
-      quantity:Number,
+      products:Object,
+      price:String,
       shippingAddress:Object,
+      date:String,
+      status:String,
     }],
     shippingAddress: {
       address: String,
@@ -41,6 +43,15 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  verified:{
+    type:Boolean,
+    default:false,
+  },
+  otp:{
+    type:String,
+    default:""
+  
   },
 });
 

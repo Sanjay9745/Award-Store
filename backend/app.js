@@ -5,10 +5,11 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 const app = express();
 const path = require("path")
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/your-database-name';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/award-store';
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI)
   .then(() => {
@@ -28,6 +29,7 @@ app.use(express.static(path.join(__dirname,'..','frontend','dist')));
 
 app.use('/api/user', userRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/payment', paymentRoutes);
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname,'..','frontend', "dist", "index.html"));
 });

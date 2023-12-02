@@ -3,7 +3,7 @@ const Product = require("../models/Products");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const jwtSecret = process.env.JWT_SECRET;
-
+const {sendMail} = require("./emailController")
 const register = async (req, res) => {
   try {
     // Step 1: Receive User Data
@@ -85,13 +85,15 @@ const protected = async (req, res) => {
 };
 const details = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user.userId).select('-password');
+    // The '-password' option excludes the 'password' field from the result
     res.status(200).json(user);
   } catch (error) {
-    console.error("Error during login:", error.message);
+    console.error("Error fetching user details:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 const update = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -420,22 +422,14 @@ const deleteShipping = async (req, res) => {
 // Create order
 const addOrder = async (req, res) => {
   try {
-    const { productId, quantity, shippingAddressId } = req.body;
     const userId = req.user.userId;
+    const products = req.body.products;
 
-    // Find the user by ID
-    const user = await User.findById(userId);
-
-    // Validate data
-    if (!productId || !quantity || !shippingAddressId) {
-      return res
-        .status(400)
-        .json({ error: "Please provide all required fields." });
-    }
-
-    // Add a new order to the orders array
-    user.orders.push({ productId, quantity, shippingAddressId });
-
+    const totalAmount = products.reduce((acc,product)=>{
+      return acc+product.product.price*product.quantity;
+    },0)
+    user.orders.push({ products:user.cart, price:TotalPrice, shippingAddress:user.shippingAddress });
+    user.cart=[]
     // Save the updated user object
     await user.save();
 
@@ -445,8 +439,6 @@ const addOrder = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-// Read orders
 const getOrders = async (req, res) => {
   try {
     const userId = req.user.userId;
@@ -458,14 +450,39 @@ const getOrders = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const orders = user.orders;
+    const orders = user.orders || []; // Ensure orders is an array, even if it's null/undefined
 
-    res.status(200).json({ orders });
+   const newOrders = await Promise.all(
+  orders.map(async (order) => {
+    const products = await Promise.all(
+      order.products.map(async (item) => {
+        const product = await Product.findById(item.productId);
+        return {
+          product: product,
+          quantity: item.quantity,  // Corrected: Access quantity from item
+          price: order.price,
+          status: order.status,
+          date: order.date,
+          shippingAddress: order.shippingAddress, 
+        };
+      })
+    );
+
+    return products; // Return the products directly, not wrapped in an object
+  })
+);
+
+    // Flatten the array of arrays into a single array
+    const flattenedOrders = newOrders.flat();
+
+    res.status(200).json(flattenedOrders);
   } catch (error) {
     console.error("Error fetching orders:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
 
 // Update order (Assuming you have a unique order ID)
 const updateOrder = async (req, res) => {
@@ -534,7 +551,107 @@ const deleteOrder = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+const editPassword = async(req,res)=>{
+try {
+  const {password} = req.body;
+  const user = await User.findById(req.user.userId);
+  //if exist then update hash the password and update
+  if (password) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+  }
+  await user.save();
+  res.status(200).json(user);
 
+} catch (error) {
+  res.status(500).json({ error: "Internal Server Error" });
+}
+}
+const sendOTP = async (req, res) => {
+  try {
+    // Step 1: Receive User Data
+    const { email } = req.body;
+
+    // Step 2: Validate User Input
+    if (!email) {
+      return res.status(400).json({ error: 'Please provide email.' });
+    }
+
+    // Step 3: Find User by Email
+    const user = await User.findOne({ email: email });
+
+    // Step 4: Check if the user is already verified
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ error: 'User already verified' });
+    }
+
+    // Step 5: Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    // Step 6: Send OTP to email
+    sendMail(
+      email,
+      'OTP Verification',
+      `Your OTP is: ${otp}`,
+      `<h1>Your OTP is: ${otp}</h1>`
+    )
+      .then(async (result) => {
+        console.log(result);
+
+        // Step 7: Save OTP to the database
+        user.otp = otp;
+        await user.save();
+
+        // Step 8: Send Response
+        res.status(200).json({ message: 'OTP sent successfully' });
+      })
+      .catch((error) => {
+        console.error('Error sending OTP:', error.message);
+        res.status(400).json({ message: 'OTP failed' });
+      });
+  } catch (error) {
+    console.error('Error during OTP generation:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+const verifyOTP = async (req, res) => {
+  try {
+    // Step 1: Receive User Data
+    const { email, otp } = req.body;
+
+    // Step 2: Validate User Input
+    if (!email || !otp) {
+      return res
+        .status(400)
+        .json({ error: 'Please provide both email and OTP.' });
+    }
+
+    // Step 3: Find User by Email
+    const user = await User.findOne({ email: email });
+
+    // Step 4: Verify User and OTP
+    if (!user && otp !== user.otp) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+   
+    // Step 5: Update verified field
+    user.verified = true;
+    await user.save();
+    //send jwt token 
+    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+      expiresIn: "1h",
+    });
+    // Step 6: Send Response
+    res.status(200).json({ message: 'OTP verified successfully' ,token:token});
+  } catch (error) {
+    console.error('Error during OTP verification:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
 module.exports = {
   register,
   login,
@@ -554,4 +671,7 @@ module.exports = {
   getOrders,
   updateOrder,
   deleteOrder,
+  editPassword,
+  sendOTP,
+  verifyOTP
 };
