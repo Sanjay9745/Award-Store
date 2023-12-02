@@ -135,7 +135,7 @@ function ShippingAddress() {
               </span>
               <input
                 className="field__input"
-                type="text"
+                type="number"
                 id="postalCode"
                 value={shippingAddress.postalCode}
                 onChange={handleInputChange}

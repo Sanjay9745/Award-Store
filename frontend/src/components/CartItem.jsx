@@ -26,7 +26,8 @@ function CartItem({product,handleAddCart,handleReduceCart,handleDeleteCartItem})
           <h3 className="cart-price">{product.product.price}</h3>
           <p className="cart-stock-status">{product.stockStatus?"In Stock":"Out Of Stock"}</p>
           <div className="cart-item-buttons">
-            <button onClick={()=>handleDeleteCartItem(product.productId)}>Delete</button>
+            
+            <button className="delete-btn" onClick={()=>handleDeleteCartItem(product.productId)}>Delete</button>
             <button onClick={()=>navigate("/product/"+product.productId)}>View</button>
           </div>
         </div>
