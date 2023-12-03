@@ -6,6 +6,7 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const app = express();
 const path = require("path")
 const PORT = process.env.PORT || 3000;
@@ -30,6 +31,7 @@ app.use(express.static(path.join(__dirname,'..','frontend','dist')));
 app.use('/api/user', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/admin', adminRoutes);
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname,'..','frontend', "dist", "index.html"));
 });
