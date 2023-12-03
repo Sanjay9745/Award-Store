@@ -82,11 +82,12 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 router.post('/webhooks', express.raw({ type: 'application/json' }), (request, response) => {
   const payload = request.body;
   const sig = request.headers['stripe-signature'];
-
+  console.log(payload);
   let event;
 
   try {
     event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
+    console.log('Webhook received!', event);
   } catch (err) {
     // Invalid signature
     console.error('Webhook signature verification failed.', err.message);
