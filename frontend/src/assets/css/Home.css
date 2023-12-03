@@ -101,13 +101,13 @@ body{
         border-radius: 5px;
         font-weight: bold;
         text-transform: uppercase;
-        color: #ffffff;
+        color: #000000;
         transition: all 1000ms;
         font-size: 15px;
         position: relative;
         overflow: hidden;
         outline: 2px solid #000000;
-    
+        background-color: #ffffff;
     
     }
 
@@ -116,24 +116,10 @@ body{
         transform: scale(1.1);
         outline: 2px solid #1d1d1e;
         box-shadow: 4px 5px 17px -4px #000000;
+        background-color:#000000;
       }
       
-      .card-buttons button.add-to-cart::before {
-        content: "";
-        position: absolute;
-        left: -50px;
-        top: 0;
-        width: 0;
-        height: 100%;
-        background-color: #2e2d2d;
-        transform: skewX(45deg);
-        z-index: -1;
-        transition: width 1000ms;
-      }
       
-      .card-buttons button.add-to-cart:hover::before {
-        width: 250%;
-      }
 
 @media screen and (max-width: 768px){
     .cards{
