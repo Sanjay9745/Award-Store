@@ -79,7 +79,7 @@ router.post("/create-checkout-session", userAuth, async (req, res) => {
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-app.post('/webhooks', express.raw({ type: 'application/json' }), (request, response) => {
+router.post('/webhooks', express.raw({ type: 'application/json' }), (request, response) => {
   const payload = request.body;
   const sig = request.headers['stripe-signature'];
 
