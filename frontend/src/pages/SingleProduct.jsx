@@ -72,7 +72,7 @@ function SingleProduct() {
                 <h3>{products.stocks>0?"In Stock":"Out Of Stock"}</h3>
                 <div className="single-product-buttons">
                     <button onClick={handleAddCart}>Add To Cart</button>
-                    <button  onClick={()=>navigate("/cart")}>Buy Now</button>
+                    <button  onClick={handleAddCart}>Buy Now</button>
                 </div>
             </div>
         </div>

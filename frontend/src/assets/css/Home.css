@@ -101,7 +101,7 @@ body{
         border-radius: 5px;
         font-weight: bold;
         text-transform: uppercase;
-        color: #000000;
+        color: #ffffff;
         transition: all 1000ms;
         font-size: 15px;
         position: relative;
@@ -155,6 +155,7 @@ body{
     .card-buttons button.add-to-cart{
         font-size: 12px;
         width: 100%;
+        
     }
 
     .card-buttons button.buy-now{
