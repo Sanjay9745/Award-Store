@@ -59,17 +59,17 @@ function Profile() {
         </div>
 
       </div>
-      <div className="profile-settings">
-        <h2 onClick={()=>navigate("/shipping-address")}>Edit Shipping</h2>
+      <div className="profile-settings" onClick={()=>navigate("/edit-shipping")}>
+        <h2 >Edit Shipping</h2>
       </div>
-      <div className="profile-settings">
-        <h2>Reset Password</h2>
+      <div className="profile-settings" onClick={()=>navigate("/edit-password")}>
+        <h2 >Reset Password</h2>
       </div>
-      <div className="profile-settings">
-        <h2 onClick={()=>(
+      <div className="profile-settings" onClick={()=>(
           localStorage.removeItem("token"),
           navigate("/login")
-        )}
+        )}>
+        <h2 
         >SignOut</h2>
       </div>
     </div>
