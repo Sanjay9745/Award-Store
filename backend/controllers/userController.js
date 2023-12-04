@@ -719,7 +719,7 @@ const forgotPassword = async (req, res) => {
       email,
       'Reset Your Password',
       `Reset Your Password`,
-      `<a href='${process.env.DOMAIN}/forget-password?token=${token}'>Reset Password</a>`
+      `<a href='${process.env.DOMAIN}/forget-password/${token}'>Reset Password</a>`
     )
       .then(async (result) => {
         console.log(result);
