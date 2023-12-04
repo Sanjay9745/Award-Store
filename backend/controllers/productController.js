@@ -78,12 +78,13 @@ const createProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     try {
-        const { name, description, price, stocks } = req.body;
+        const { name, description, price, stocks,id } = req.body;
         req.body.image = req.file;
         let imageObj = req.body.image;
+        console.log(req.body);
   //if exist then update
 
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findById(id);
     if (product) {
         product.name = name || product.name;
         product.description = description || product.description;
