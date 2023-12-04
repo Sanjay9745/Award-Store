@@ -35,7 +35,7 @@ function EditPassword() {
             console.log("Please fill all the data");
             return;
         }
-        if (password===confirmPassword){
+        if (password!==confirmPassword){
             console.log("Passwords do not match");
             return
         }
@@ -49,7 +49,7 @@ function EditPassword() {
           if(res.status===200){
             setPassword("");
             setConfirmPassword("");
-            console.log(res.data);
+            navigate("/profile")
           }
         }).catch((err)=>{
           console.log(err);

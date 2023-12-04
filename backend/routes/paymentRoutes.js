@@ -77,12 +77,22 @@ router.post("/create-checkout-session", userAuth, async (req, res) => {
   }
 });
 
-const endpointSecret = "whsec_AoteIPsAFUGMNmJJtzjQ8pEd2NhrZYTy";
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 router.post('/webhooks', express.raw({ type: 'application/json' }), (request, response) => {
-  console.log(request.body.type);
+  const payload = request.body;
+  const sig = request.headers['stripe-signature'];
+  console.log(payload);
+  let event;
 
-  const event = request.body;
+  try {
+    event = stripe.webhooks.constructEvent(payload, sig, endpointSecret);
+    console.log('Webhook received!', event);
+  } catch (err) {
+    // Invalid signature
+    console.error('Webhook signature verification failed.', err.message);
+    return response.status(400).end();
+  }
 
   // Handle the event
   switch (event.type) {
@@ -103,25 +113,29 @@ router.post('/webhooks', express.raw({ type: 'application/json' }), (request, re
 
       // Now you have userId and items available for further processing
       console.log(userId, items);
-    User.findById(userId).then((user)=>{
-      //make cart empty
-      user.cart=[];
-      //add orders
-      user.orders.push({
-        products:items,
-        price:checkoutSessionCompleted.amount_total,
-        shippingAddress:user.shippingAddress,
-        date:Date.now(),
-        status:"ordered"
-      })
-      //save user
-      user.save().then(()=>{
-        console.log("user saved");
-      }).catch((err)=>{
-        console.log(err);
 
+      // Example: Fetch user from the database and update orders
+      User.findById(userId).then((user) => {
+        // Make cart empty
+        user.cart = [];
+
+        // Add orders
+        user.orders.push({
+          products: items,
+          price: checkoutSessionCompleted.amount_total,
+          shippingAddress: user.shippingAddress,
+          date: Date.now(),
+          status: 'ordered',
+        });
+
+        // Save user
+        user.save().then(() => {
+          console.log('User saved');
+        }).catch((err) => {
+          console.log(err);
+        });
       });
-    })
+
       // Then define and call a function to handle the event checkout.session.completed
       console.log(checkoutSessionCompleted);
       break;

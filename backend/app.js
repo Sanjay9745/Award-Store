@@ -6,6 +6,7 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const app = express();
 const path = require("path")
 const PORT = process.env.PORT || 3000;
@@ -23,13 +24,14 @@ mongoose.connect(MONGODB_URI)
 
 // Middleware
 app.use(cors());
+app.use('/api/payment', paymentRoutes);//make the webhook top of express json because it is raw data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname,'..','frontend','dist')));
 
 app.use('/api/user', userRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/payment', paymentRoutes);
+app.use('/api/admin', adminRoutes);
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname,'..','frontend', "dist", "index.html"));
 });

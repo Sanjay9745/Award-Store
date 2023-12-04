@@ -11,7 +11,9 @@ import ShippingAddress from "./pages/ShippingAddress";
 import Payment from "./pages/Payment";
 import EditPassword from "./pages/EditPassword";
 import Otp from "./pages/Otp";
+import EditShipping from "./pages/EditShipping";
 function App() {
+  
   return (
     <>
       <Routes>
@@ -25,6 +27,7 @@ function App() {
         <Route path="/shipping-address" element={<ShippingAddress/>} />
         <Route path="/payment" element={<Payment/>} />
         <Route path="/edit-password" element={<EditPassword/>} />
+        <Route path="/edit-shipping" element={<EditShipping/>} />
         <Route path="/otp" element={<Otp/>} />
         <Route path="*" element={<Home />} />
 

@@ -102,7 +102,7 @@ padding: 20px 30px;
   font-weight: 500;
   cursor: pointer;
   transition: all 1000ms;
-
+  color: black;
 }
 .cart-item-img img{
   width:300px;

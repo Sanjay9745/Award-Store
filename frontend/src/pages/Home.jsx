@@ -73,7 +73,7 @@ console.log(res.data);
     }
   }).then((res)=>{
     if(res.status===200){
-      console.log(res.data);
+    navigate("/cart")
     }
   }).catch((err)=>{
     console.log(err);
