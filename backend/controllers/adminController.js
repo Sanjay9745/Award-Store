@@ -221,16 +221,15 @@ const getOrders = async (req, res) => {
   
       const user = await User.findById(userId);
   
-      // Find the order in the user's orders array
-      const order = user.orders.find((item) => item._id === orderId);
-  console.log(order)
-
-      if (!order) {
+      // Find the index of the order in the user's orders array
+      const orderIndex = user.orders.findIndex((item) => item._id.toString() === orderId);
+  
+      if (orderIndex === -1) {
         return res.status(404).json({ error: "Order not found" });
       }
   
       // Update the status of the found order
-      order.status = status;
+      user.orders[orderIndex].status = status;
   
       // Mark the 'orders' array as modified
       user.markModified('orders');
@@ -246,6 +245,8 @@ const getOrders = async (req, res) => {
   };
   
   
+  
+  
 
 module.exports = {
     adminLogin,
@@ -256,4 +257,4 @@ module.exports = {
     getAllOrders,
     getOrders,
     updateOrderStatus
-}
+} 
