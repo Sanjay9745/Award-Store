@@ -14,6 +14,7 @@ function OrderItem({ order }) {
             <h3>{order.product.name}</h3>
             <p>₹ {order.product.price}</p>
             <p>Qty: {order.quantity}</p>
+            <p>Status: {order.status}</p>
           </div>
         </div>
         <div className="order-card-right">
@@ -23,9 +24,9 @@ function OrderItem({ order }) {
             <p>{order.shippingAddress.phoneNumber}</p>
             <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.pinCode}</p>
           </div>
-          <div className="order-card-button">
+          {/* <div className="order-card-button">
             <button>Cancel</button>
-          </div>
+          </div> */}
         </div>
       </div>
     </>
