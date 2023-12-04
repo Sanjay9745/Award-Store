@@ -68,7 +68,7 @@ function Profile() {
       <div className="profile-settings" onClick={()=>navigate("/edit-password")}>
         <h2 >Reset Password</h2>
       </div>
-      <div className="profile-settings" onClick={()=>(
+      <div className="profile-settings signout" onClick={()=>(
           localStorage.removeItem("token"),
           navigate("/login")
         )}>

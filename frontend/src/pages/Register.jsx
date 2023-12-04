@@ -40,7 +40,7 @@ function Register() {
             <input type="email" placeholder="Email" onChange={(e)=>setEmail(e.target.value)}/>
             <input type="password" placeholder="Password" onChange={(e)=>setPassword(e.target.value)}/>
             <button type="submit" onClick={handleSubmit}>Register</button>
-            <p onClick={()=>navigate("/login")}>Already Have A Account</p>
+            <p onClick={()=>navigate("/login")}>Already Have A Account? &nbsp;<strong>Login</strong></p>
         
         </div>
         </div>
