@@ -218,18 +218,22 @@ const getOrders = async (req, res) => {
   const updateOrderStatus = async (req, res) => {
     try {
       const { orderId, status, userId } = req.body;
-      console.log(orderId, status, userId);
+  
       const user = await User.findById(userId);
   
       // Find the order in the user's orders array
       const order = user.orders.find((item) => item._id === orderId);
-  
+  console.log(order)
+
       if (!order) {
         return res.status(404).json({ error: "Order not found" });
       }
   
       // Update the status of the found order
       order.status = status;
+  
+      // Mark the 'orders' array as modified
+      user.markModified('orders');
   
       // Save the user to persist the changes
       await user.save();
@@ -240,6 +244,7 @@ const getOrders = async (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+  
   
 
 module.exports = {

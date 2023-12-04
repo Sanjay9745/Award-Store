@@ -55,7 +55,7 @@ router.post("/create-checkout-session", userAuth, async (req, res) => {
             product_data: {
               name: item.name,
             },
-            unit_amount: item.price * item.quantity * 100, // Convert to paisa (Stripe expects amount in the smallest currency unit)
+            unit_amount: (item.price * item.quantity )* 100, // Convert to paisa (Stripe expects amount in the smallest currency unit)
           },
           quantity: item.quantity,
         };
