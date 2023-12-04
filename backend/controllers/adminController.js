@@ -127,39 +127,24 @@ const getOrders = async (req, res) => {
         return res.status(404).json({ error: "User not found" });
       }
   
-      const orders = user.orders || [];
-  
-      const newOrders = await Promise.all(
-        orders.map(async (order) => {
-          const products = await Promise.all(
-            order.products.map(async (item) => {
-              const product = await Product.findById(item.productId);
-              if (!product) {
-                // Handle the case when the product is not found
-                // You might want to skip it or send an error response
-                return null;
-              }
-  
-              return {
-                product,
-                quantity: item.quantity,
-                price: order.price,
-                status: order.status,
-                date: order.date,
-                shippingAddress: order.shippingAddress,
-              };
-            })
-          );
-  
-          // Filter out null values if any product is not found
-          const validProducts = products.filter((item) => item !== null);
-  
-          return validProducts;
-        })
-      );
-  
-      // Flatten the array of arrays into a single array
-      const flattenedOrders = newOrders.flat();
+      const orders = user.orders || []; // Ensure orders is an array, even if it's null/undefined
+
+    const newOrders = await Promise.all(
+      orders.map(async (order) => {
+        const newProduct = await Product.findById(order.product.productId);
+        return {
+          product: newProduct,
+          quantity: order.quantity,  // Corrected: Access quantity from order
+          price: order.product.quantity*newProduct.price,
+          status: order.status,
+          date: order.date,
+          shippingAddress: order.shippingAddress,
+        };
+      })
+    );
+
+    // Flatten the array of arrays into a single array
+    const flattenedOrders = newOrders.flat();
   
       res.status(200).json(flattenedOrders);
     } catch (error) {
@@ -181,43 +166,41 @@ const getOrders = async (req, res) => {
   
       const allOrders = await Promise.all(
         users.map(async (user) => {
+          
           const orders = user.orders || [];
-  
+          
           const userOrders = await Promise.all(
+
             orders.map(async (order) => {
-              const products = await Promise.all(
-                order.products.map(async (item) => {
-                  const product = await Product.findById(item.productId);
-                  if (!product) {
-                    // Handle the case when the product is not found
-                    // You might want to skip it or send an error response
-                    return null;
-                  }
+             
+              const newProduct = await Product.findById(order.product.productId);
   
-                  return {
-                    product,
-                    quantity: item.quantity,
-                    price: order.price,
-                    status: order.status,
-                    date: order.date,
-                    shippingAddress: order.shippingAddress,
-                    name: user.username,
-                    email: user.email,
-                    orderId: order._id,
-                    userId:user._id
-                  };
-                })
-              );
+              // Check if newProduct is not null or undefined
+              if (!newProduct) {
+                // Handle the case when the product is not found
+                return null;
+              }
   
-              // Filter out null values if any product is not found
-              const validProducts = products.filter((item) => item !== null);
-  
-              return validProducts;
+              return {
+                product: newProduct,
+                quantity: order.product.quantity,
+                price: order.product.quantity * newProduct.price, // Adjusted calculation
+                status: order.status,
+                date: order.date,
+                shippingAddress: order.shippingAddress,
+                name: user.username,
+                email: user.email,
+                orderId: order._id,
+                userId: user._id,
+              };
             })
           );
   
+          // Filter out null values if any product is not found
+          const validUserOrders = userOrders.filter((item) => item !== null);
+  
           // Flatten the array of arrays into a single array
-          const userFlattenedOrders = userOrders.flat();
+          const userFlattenedOrders = validUserOrders.flat();
           return userFlattenedOrders;
         })
       );
@@ -231,19 +214,33 @@ const getOrders = async (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+  
   const updateOrderStatus = async (req, res) => {
     try {
-      const { orderId, status,productId,userId } = req.body;
+      const { orderId, status, userId } = req.body;
+      console.log(orderId, status, userId);
       const user = await User.findById(userId);
-      user.orders.forEach((order) => {
-        if (order._id.toString() === orderId.toString()) {
-          order.status = status;
-        }
-      })
+  
+      // Find the order in the user's orders array
+      const order = user.orders.find((item) => item._id === orderId);
+  
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+  
+      // Update the status of the found order
+      order.status = status;
+  
+      // Save the user to persist the changes
+      await user.save();
+  
+      res.status(200).json({ message: "Order status updated successfully" });
     } catch (error) {
-      
+      console.error("Error updating order status:", error.message);
+      res.status(500).json({ error: "Internal Server Error" });
     }
-  }
+  };
+  
 
 module.exports = {
     adminLogin,
@@ -253,5 +250,5 @@ module.exports = {
     deleteUser,
     getAllOrders,
     getOrders,
-
+    updateOrderStatus
 }

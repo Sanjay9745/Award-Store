@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
+const mongoose = require("mongoose");
 const userAuth = require('../middleware/userAuth');
 // Helper function to calculate the total price
 function calculateTotalPrice(items) {
@@ -125,6 +125,7 @@ router.post('/webhooks', express.raw({ type: 'application/json' }), (request, re
           shippingAddress: user.shippingAddress,
           date: Date.now(),
           status: 'ordered',
+          _id: new mongoose.Types.ObjectId(),
         }));
       
         // Add orders to user's order array

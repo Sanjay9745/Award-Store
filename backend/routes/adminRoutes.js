@@ -10,7 +10,7 @@ router.get('/orders',adminAuth,adminController.getAllOrders);
 
 router.post('/login',adminController.adminLogin);
 router.post('/register',adminController.adminRegister);//comment this route after creating admin
-// router.post('/update-order-status',adminAuth,adminController.updateOrderStatus);
+router.post('/update-order-status',adminAuth,adminController.updateOrderStatus);
 
 router.get('/orders/:userId',adminAuth,adminController.getOrders);
 router.delete('/delete-user/:id',adminAuth,adminController.deleteUser);

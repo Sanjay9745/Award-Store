@@ -497,11 +497,11 @@ const getOrders = async (req, res) => {
 
     const newOrders = await Promise.all(
       orders.map(async (order) => {
-        const newProduct = await Product.findById(order.product._id);
+        const newProduct = await Product.findById(order.product.productId);
         return {
           product: newProduct,
           quantity: order.quantity,  // Corrected: Access quantity from order
-          price: order.price,
+          price: order.product.quantity*newProduct.price,
           status: order.status,
           date: order.date,
           shippingAddress: order.shippingAddress,
