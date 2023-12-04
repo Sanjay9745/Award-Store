@@ -121,8 +121,7 @@ router.post('/webhooks', express.raw({ type: 'application/json' }), (request, re
       
         // Map through items and create orders
         const orders = items.map((item) => ({
-          products: item.products,
-          price: item.price,
+          product:item,
           shippingAddress: user.shippingAddress,
           date: Date.now(),
           status: 'ordered',
