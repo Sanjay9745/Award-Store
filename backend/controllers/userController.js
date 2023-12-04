@@ -690,6 +690,51 @@ const verifyOTP = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+const forgotPassword = async (req, res) => {
+  try {
+    // Step 1: Receive User Data
+    const { email } = req.body;
+
+    // Step 2: Validate User Input
+    if (!email) {
+      return res.status(400).json({ error: 'Please provide email.' });
+    }
+
+    // Step 3: Find User by Email
+    const user = await User.findOne({ email: email });
+
+    // Step 4: Check if the user is already verified
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    // Step 5: Generate jwt token and sent with button
+        // Step 5: Generate JWT
+        const token = jwt.sign({ userId: user._id }, jwtSecret, {
+          expiresIn: "1h",
+        });
+    
+    // Step 6: Send OTP to email
+    sendMail(
+      email,
+      'Reset Your Password',
+      `Reset Your Password`,
+      `<a href='${process.env.DOMAIN}/forget-password?token=${token}'>Reset Password</a>`
+    )
+      .then(async (result) => {
+        console.log(result);
+        // Step 8: Send Response
+        res.status(200).json({ message: 'OTP sent successfully' });
+      })
+      .catch((error) => {
+        console.error('Error sending OTP:', error.message);
+        res.status(400).json({ message: 'OTP failed' });
+      });
+  } catch (error) {
+    console.error('Error during OTP generation:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 module.exports = {
   register,
   login,
@@ -712,5 +757,6 @@ module.exports = {
   deleteOrder,
   editPassword,
   sendOTP,
-  verifyOTP
+  verifyOTP,
+  forgotPassword
 };

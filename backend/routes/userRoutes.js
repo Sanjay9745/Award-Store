@@ -19,7 +19,7 @@ router.post('/shipping', userAuth, userController.addShipping);
 router.post('/orders', userAuth, userController.addOrder);
 router.post('/send-otp', userController.sendOTP);
 router.post('/verify-otp', userController.verifyOTP);
-router
+router.post('/forgot-password',userController.forgotPassword);
 
 //update
 router.put('/update', userAuth, userController.update);
