@@ -8,7 +8,7 @@ function ForgetPassword() {
     useEffect(()=>{
         if(token){
             localStorage.setItem("token",token)
-            console.log(token);
+            navigate('/edit-password')
         }
     },[navigate, token])
   return (

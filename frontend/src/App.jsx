@@ -12,8 +12,9 @@ import Payment from "./pages/Payment";
 import EditPassword from "./pages/EditPassword";
 import Otp from "./pages/Otp";
 import EditShipping from "./pages/EditShipping";
+import ForgetPassword from "./pages/ForgetPassword";
 function App() {
-  
+
   return (
     <>
       <Routes>
@@ -28,6 +29,7 @@ function App() {
         <Route path="/payment" element={<Payment/>} />
         <Route path="/edit-password" element={<EditPassword/>} />
         <Route path="/edit-shipping" element={<EditShipping/>} />
+        <Route path="/forget-password/:token" element={<ForgetPassword/>} />
         <Route path="/otp" element={<Otp/>} />
         <Route path="*" element={<Home />} />
 
