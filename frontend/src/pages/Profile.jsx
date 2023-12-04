@@ -51,9 +51,7 @@ function Profile() {
   <div className="container">
     <Navbar active={"profile"}/>
     <div className="profile-container">
-      <div className="profile-head">
           <h1>Personal Information</h1>
-      </div>
       <div className="profile-card">
         <div className="profile-details">
           <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="" />
