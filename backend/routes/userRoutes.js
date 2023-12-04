@@ -8,7 +8,8 @@ router.get('/protected', userAuth, userController.protected);
 router.get('/details', userAuth, userController.details);
 router.get('/cart', userAuth, userController.getCart);
 router.get('/shipping',userAuth,userController.getShipping)
-router.get('/orders',userAuth,userController.getOrders)
+router.get('/orders',userAuth,userController.getOrders);
+router.get('/orders-v2',userAuth,userController.getOrdersV2);
 
 router.post('/register', userController.register);
 router.post('/login', userController.login);
@@ -18,7 +19,7 @@ router.post('/shipping', userAuth, userController.addShipping);
 router.post('/orders', userAuth, userController.addOrder);
 router.post('/send-otp', userController.sendOTP);
 router.post('/verify-otp', userController.verifyOTP);
-
+router
 
 //update
 router.put('/update', userAuth, userController.update);
