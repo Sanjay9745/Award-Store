@@ -28,7 +28,8 @@ app.use('/api/payment', paymentRoutes);//make the webhook top of express json be
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname,'..','frontend','dist')));
-
+//public static folder
+app.use(express.static(path.join(__dirname, "public")));
 app.use('/api/user', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admin', adminRoutes);

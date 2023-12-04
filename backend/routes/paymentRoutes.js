@@ -118,23 +118,29 @@ router.post('/webhooks', express.raw({ type: 'application/json' }), (request, re
       User.findById(userId).then((user) => {
         // Make cart empty
         user.cart = [];
-
-        // Add orders
-        user.orders.push({
-          products: items,
-          price: checkoutSessionCompleted.amount_total,
+      
+        // Map through items and create orders
+        const orders = items.map((item) => ({
+          products: item.products,
+          price: item.price,
           shippingAddress: user.shippingAddress,
           date: Date.now(),
           status: 'ordered',
-        });
-
+        }));
+      
+        // Add orders to user's order array
+        user.orders = user.orders.concat(orders);
+      
         // Save user
-        user.save().then(() => {
-          console.log('User saved');
-        }).catch((err) => {
-          console.log(err);
-        });
+        user.save()
+          .then(() => {
+            console.log('User saved with orders');
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       });
+      
 
       // Then define and call a function to handle the event checkout.session.completed
       console.log(checkoutSessionCompleted);

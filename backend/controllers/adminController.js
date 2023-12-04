@@ -101,15 +101,21 @@ const getAllUsers = async (req, res) => {
   };
   
 
-const deleteUser = async (req, res) => {
+  const deleteUser = async (req, res) => {
     try {
-        const user = await User.findOneAndDelete(req.params.id);
+        const user = await User.findOneAndDelete({ _id: req.params.id });
+        
+        if (!user) {
+            // If the user with the specified ID is not found
+            return res.status(404).json({ error: "User not found" });
+        }
+
         res.status(200).json({ msg: "User removed" });
     } catch (error) {
         console.error("Error deleting user:", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
-}
+};
 
 
 const getOrders = async (req, res) => {
@@ -161,10 +167,17 @@ const getOrders = async (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
-  
   const getAllOrders = async (req, res) => {
     try {
-      const users = await User.find({}); // Retrieve all users
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+  
+      // Calculate the number of documents to skip
+      const skip = (page - 1) * limit;
+  
+      const users = await User.find({})
+        .skip(skip)
+        .limit(limit);
   
       const allOrders = await Promise.all(
         users.map(async (user) => {
@@ -188,9 +201,10 @@ const getOrders = async (req, res) => {
                     status: order.status,
                     date: order.date,
                     shippingAddress: order.shippingAddress,
-                    name:user.username,
-                    email:user.email,
-                    
+                    name: user.username,
+                    email: user.email,
+                    orderId: order._id,
+                    userId:user._id
                   };
                 })
               );
@@ -217,6 +231,19 @@ const getOrders = async (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+  const updateOrderStatus = async (req, res) => {
+    try {
+      const { orderId, status,productId,userId } = req.body;
+      const user = await User.findById(userId);
+      user.orders.forEach((order) => {
+        if (order._id.toString() === orderId.toString()) {
+          order.status = status;
+        }
+      })
+    } catch (error) {
+      
+    }
+  }
 
 module.exports = {
     adminLogin,

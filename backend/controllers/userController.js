@@ -482,6 +482,21 @@ const getOrders = async (req, res) => {
   }
 };
 
+const getOrdersV2 = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.status(200).json(user.orders);
+  } catch (error) {
+    console.error("Error fetching user orders:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 
 // Update order (Assuming you have a unique order ID)
@@ -561,7 +576,9 @@ try {
     user.password = hashedPassword;
   }
   await user.save();
-  res.status(200).json(user);
+  res.status(200).json({
+    message:"Password updated successfully"
+  });
 
 } catch (error) {
   res.status(500).json({ error: "Internal Server Error" });
@@ -669,6 +686,7 @@ module.exports = {
   deleteShipping,
   addOrder,
   getOrders,
+  getOrdersV2,
   updateOrder,
   deleteOrder,
   editPassword,

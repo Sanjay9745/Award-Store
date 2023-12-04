@@ -21,14 +21,7 @@ const userSchema = new mongoose.Schema({
       quantity:Number,
     }
   ],
-  orders:[
-    {
-      products:Object,
-      price:String,
-      shippingAddress:Object,
-      date:String,
-      status:String,
-    }],
+  orders:Array,
     shippingAddress: {
       address: String,
       city: String,
