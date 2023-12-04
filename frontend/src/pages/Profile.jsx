@@ -54,6 +54,7 @@ function Profile() {
       <div className="profile-card">
       
         <div className="profile-details">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="" />
           <p>Hello {profile.username}</p>
           <p>{profile.email}</p>
         </div>
