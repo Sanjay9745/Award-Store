@@ -85,16 +85,24 @@ const updateProduct = async (req, res) => {
   //if exist then update
 
   const product = await Product.findById(id);
-    if (product) {
-        product.name = name || product.name;
-        product.description = description || product.description;
-        product.price = price || product.price;
-        product.image = imageObj.filename || product.image;
-        product.stocks = stocks || product.stocks;
-        const updatedProduct = await product.save();
-        res.json(updatedProduct);
+  if(name){
+    product.name=name;
+  }
+    if(description){
+        product.description=description;
     }
+    if(price){
+        product.price=price;
 
+    }
+    if(imageObj){
+        product.image=process.env.DOMAIN+"/"+imageObj.filename;
+    }
+    if(stocks){
+        product.stocks=stocks;
+    }
+    const updatedProduct = await product.save();
+    res.status(200).json({message:"Product Updated successfully"});
     } catch (error) {
         console.error("Error updating product:", error.message);
         res.status(500).json({ error: "Internal Server Error" });
