@@ -439,7 +439,7 @@ const addOrder = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-const getOrders = async (req, res) => {
+const getOrdersV2 = async (req, res) => {
   try {
     const userId = req.user.userId;
 
@@ -482,18 +482,39 @@ const getOrders = async (req, res) => {
   }
 };
 
-const getOrdersV2 = async (req, res) => {
+const getOrders = async (req, res) => {
   try {
     const userId = req.user.userId;
+
+    // Find the user by ID
     const user = await User.findById(userId);
-    
+
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
-    
-    res.status(200).json(user.orders);
+
+    const orders = user.orders || []; // Ensure orders is an array, even if it's null/undefined
+
+    const newOrders = await Promise.all(
+      orders.map(async (order) => {
+        const newProduct = await Product.findById(order.product._id);
+        return {
+          product: newProduct,
+          quantity: order.quantity,  // Corrected: Access quantity from order
+          price: order.price,
+          status: order.status,
+          date: order.date,
+          shippingAddress: order.shippingAddress,
+        };
+      })
+    );
+
+    // Flatten the array of arrays into a single array
+    const flattenedOrders = newOrders.flat();
+
+    res.status(200).json(flattenedOrders);
   } catch (error) {
-    console.error("Error fetching user orders:", error.message);
+    console.error("Error fetching orders:", error.message);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
