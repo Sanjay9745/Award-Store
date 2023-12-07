@@ -49,13 +49,14 @@ router.post("/create-checkout-session", userAuth, async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: validItemsWithQuantity.map((item) => {
+        const price = item.price * item.quantity;
         return {
           price_data: {
             currency: "inr", // Change currency to Indian Rupee (INR)
             product_data: {
               name: item.name,
             },
-            unit_amount: (item.price * item.quantity )* 100, // Convert to paisa (Stripe expects amount in the smallest currency unit)
+            unit_amount: price* 100, // Convert to paisa (Stripe expects amount in the smallest currency unit)
           },
           quantity: item.quantity,
         };
@@ -127,13 +128,20 @@ router.post('/webhooks', express.raw({ type: 'application/json' }), (request, re
           status: 'ordered',
           _id: new mongoose.Types.ObjectId(),
         }));
-      
+        items.map((item)=>{
+          Product.findById(item.productId).then((product)=>{
+            product.stocks = product.stocks - item.quantity;
+            product.save();
+          
+          })
+        })
         // Add orders to user's order array
         user.orders = user.orders.concat(orders);
-      
+    
         // Save user
         user.save()
           .then(() => {
+           
             console.log('User saved with orders');
           })
           .catch((err) => {
