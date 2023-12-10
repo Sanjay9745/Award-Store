@@ -3,7 +3,7 @@ import "../assets/css/Login.css"
 import axios from "axios"
 import SERVER_URL from "../config/SERVER_URL";
 import { useNavigate } from "react-router-dom";
-
+import toast from 'react-hot-toast';
 function Register() {
     const navigate = useNavigate();
     const [name,setName]=useState('');
@@ -12,7 +12,7 @@ function Register() {
     const handleSubmit=()=>{
     //validate data
     if(!name || !email || !password){
-    console.log("Please fill all the data");
+      toast.error("Please fill all the data");
       return
     }
     axios.post(SERVER_URL+"/user/register",{
@@ -26,6 +26,7 @@ function Register() {
         }
         }).catch((err)=>{
         console.log(err);
+        toast.error("Already Registered")
         
     })
 }

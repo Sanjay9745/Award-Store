@@ -4,7 +4,7 @@ import "../assets/css/EditPassword.css"
 import axios from 'axios'
 import SERVER_URL from '../config/SERVER_URL'
 import { useNavigate } from 'react-router-dom'
-
+import toast from 'react-hot-toast';
 function EditPassword() {
     const navigate = useNavigate();
     const [password,setPassword]=useState("");
@@ -32,11 +32,11 @@ function EditPassword() {
     const handleEditPassword = ()=>{
         //validate data
         if (!password || !confirmPassword) {
-            console.log("Please fill all the data");
+            toast.error("Please fill all the data");
             return;
         }
         if (password!==confirmPassword){
-            console.log("Passwords do not match");
+          toast.error("Passwords do not match");
             return
         }
         axios.put(SERVER_URL+"/user/edit-password",{
@@ -49,6 +49,7 @@ function EditPassword() {
           if(res.status===200){
             setPassword("");
             setConfirmPassword("");
+            toast.success("Password updated successfully");
             navigate("/profile")
           }
         }).catch((err)=>{

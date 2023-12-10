@@ -3,6 +3,7 @@ import axios from 'axios';
 import SERVER_URL from "../config/SERVER_URL";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 function Login() {
 const navigate = useNavigate();
   const [email,setEmail]=useState('');
@@ -26,7 +27,7 @@ const navigate = useNavigate();
   const handleSubmit=()=>{
   //validate data
   if(!email || !password){
-  console.log("Please fill all the data");
+    toast.error("Please fill all the data");
     return
   }
   axios.post(SERVER_URL+"/user/login",{
@@ -35,17 +36,18 @@ const navigate = useNavigate();
       password:password
       }).then((res)=>{
       if(res.status===200){
+        toast.success("Login Success");
           localStorage.setItem("token",res.data.token);
           navigate("/")
       }
       }).catch((err)=>{
       console.log(err);
-      
+      toast.error("Incorrect Email or Password")
   })
 }
 const handleForgotPassword=()=>{
   if (!email) {
-    alert("Please enter your email address");
+    toast.error("Please enter your email address");
     return;
   }
   axios
@@ -60,6 +62,7 @@ const handleForgotPassword=()=>{
       }
     })
     .catch((err) => {
+      toast.error("Something went wrong")
       console.log(err);
     });
 }

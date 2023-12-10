@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import axios from 'axios';
 import SERVER_URL from "../config/SERVER_URL";
 import { useNavigate } from "react-router-dom";
-
+import toast from 'react-hot-toast';
 function Home() {
   const navigate = useNavigate();
   const [products,setProducts]=useState([]);
@@ -73,7 +73,7 @@ console.log(res.data);
     }
   }).then((res)=>{
     if(res.status===200){
-    navigate("/cart")
+    toast.success("Item added to cart");
     }
   }).catch((err)=>{
     console.log(err);

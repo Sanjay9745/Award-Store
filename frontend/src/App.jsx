@@ -13,6 +13,7 @@ import EditPassword from "./pages/EditPassword";
 import Otp from "./pages/Otp";
 import EditShipping from "./pages/EditShipping";
 import ForgetPassword from "./pages/ForgetPassword";
+import{ Toaster } from 'react-hot-toast';
 function App() {
 
   return (
@@ -32,8 +33,8 @@ function App() {
         <Route path="/forget-password/:token" element={<ForgetPassword/>} />
         <Route path="/otp" element={<Otp/>} />
         <Route path="*" element={<Home />} />
-
       </Routes>
+        <Toaster />
     </>
   );
 }

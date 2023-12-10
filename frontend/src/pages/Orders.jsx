@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
 import SERVER_URL from "../config/SERVER_URL";
 import axios from 'axios'
+import toast from 'react-hot-toast';
 function Orders() {
   const navigate = useNavigate();
   const [orders,setOrders]=useState([]);
@@ -37,6 +38,7 @@ function Orders() {
     }).then((res)=>{
       if(res.status===200){
         if(res.data.length===0){
+          toast.error("You have not placed any orders yet");
           navigate("/");
         }
     setOrders(res.data);

@@ -5,7 +5,7 @@ import axios from 'axios';
 import SERVER_URL from "../config/SERVER_URL";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-
+import toast from 'react-hot-toast';
 function Carts() {
   const navigate = useNavigate();
   const [products,setProducts]=useState([]);
@@ -37,6 +37,7 @@ function Carts() {
     }).then((res)=>{
       if(res.status===200){
         if(res.data.length===0){
+          toast.error("Your cart is empty");
           navigate("/");
         }
     setProducts(res.data);

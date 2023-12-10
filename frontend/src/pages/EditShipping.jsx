@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import SERVER_URL from "../config/SERVER_URL";
 import axios from "axios";
+import toast from 'react-hot-toast';
 function EditShipping() {
   const navigate = useNavigate();
   const [shippingAddress, setShippingAddress] = useState({
@@ -87,6 +88,7 @@ function EditShipping() {
       })
       .then((res) => {
         if (res.status === 200) {
+          toast.success("Shipping address updated successfully")
           // Redirect to payment page
           navigate("/profile");
         }
