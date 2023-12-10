@@ -49,7 +49,7 @@ router.post("/create-checkout-session", userAuth, async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: validItemsWithQuantity.map((item) => {
-        const price = item.price * item.quantity;
+        const price = item.price;
         const priceINR = price * 100;
         return {
           price_data: {
