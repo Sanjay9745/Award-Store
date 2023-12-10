@@ -23,7 +23,7 @@ mongoose.connect(MONGODB_URI)
 // Start the server after successfully connecting to the database
 
 // Middleware
-app.use(cors());
+app.use(cors());//add domain name in cors
 app.use('/api/payment', paymentRoutes);//make the webhook top of express json because it is raw data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

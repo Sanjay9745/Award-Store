@@ -50,13 +50,14 @@ router.post("/create-checkout-session", userAuth, async (req, res) => {
       payment_method_types: ["card"],
       line_items: validItemsWithQuantity.map((item) => {
         const price = item.price * item.quantity;
+        const priceINR = price * 100;
         return {
           price_data: {
             currency: "inr", // Change currency to Indian Rupee (INR)
             product_data: {
               name: item.name,
             },
-            unit_amount: price* 100, // Convert to paisa (Stripe expects amount in the smallest currency unit)
+            unit_amount: priceINR, // Convert to paisa (Stripe expects amount in the smallest currency unit)
           },
           quantity: item.quantity,
         };
