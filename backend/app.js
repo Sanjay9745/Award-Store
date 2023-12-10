@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use('/api/user', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admin', adminRoutes);
-app.get("/store-admin", (req, res) => {
+app.get("/admin/store-admin", (req, res) => {
   res.sendFile(path.join(__dirname,'..','store-admin', "dist", "index.html"));
 });
 app.get("*", (req, res) => {
